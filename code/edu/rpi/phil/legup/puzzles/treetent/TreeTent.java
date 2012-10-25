@@ -23,6 +23,8 @@ import edu.rpi.phil.legup.CaseRule;
 import edu.rpi.phil.legup.Contradiction;
 import edu.rpi.phil.legup.PuzzleModule;
 import edu.rpi.phil.legup.PuzzleRule;
+import edu.rpi.phil.legup.Legup;
+import edu.rpi.phil.legup.Selection;
 
 /**
  * @TODO add link rule from the tree's perspective:
@@ -49,6 +51,50 @@ public class TreeTent extends PuzzleModule
 	public void mousePressedEvent(BoardState state, Point where)
 	{
 
+	}
+	public void mouseDraggedEvent(BoardState state, Point where)
+	{
+        state.setCellContents(where.x,where.y,CELL_GRASS);
+	}
+	public void labelPressedEvent(BoardState state, int index, int side)
+	{
+		System.out.println(index);
+		System.out.println(side);
+		if(side == 0 || side == 1)
+		{
+			for(int i = 0; i < state.getHeight(); i++)
+			{
+				if (state.isModifiableCell(index,i))
+				{
+					if (!state.isModifiable()) {
+						BoardState next = state.addTransitionFrom();
+						state = next;
+						state.setCellContents(index,i,CELL_GRASS);
+						Legup.getInstance().getSelections().setSelection(new Selection(next, false));	
+					} else {
+						state.setCellContents(index,i,CELL_GRASS);
+
+					}
+				}
+			}
+		}
+		if(side == 2 || side == 3)
+		{
+			for(int i = 0; i < state.getWidth(); i++)
+			{
+				if (state.isModifiableCell(i,index))
+				{
+					if (!state.isModifiable()) {
+						BoardState next = state.addTransitionFrom();
+						state = next;
+						state.setCellContents(i,index,CELL_GRASS);
+						Legup.getInstance().getSelections().setSelection(new Selection(next, false));	
+					} else {
+						state.setCellContents(i,index,CELL_GRASS);
+					}
+				}
+			}
+		}
 	}
 
 	/**

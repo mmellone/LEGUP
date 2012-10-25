@@ -84,9 +84,6 @@ public abstract class DynamicViewer extends JScrollPane {
 		public void mouseExited( MouseEvent e ){
 			mouseExitedAt( toDrawCoordinates(e.getPoint()), e );
 		}
-		public void mouseMoved( MouseEvent e ){
-			mouseMovedAt( toDrawCoordinates(e.getPoint()), e );
-		}
 	};
 
 	/*** LAYOUT MANAGER ***/

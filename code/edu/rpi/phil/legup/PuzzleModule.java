@@ -51,6 +51,9 @@ public abstract class PuzzleModule
 		int next = getNextCellValue(where.x,where.y,state);
 		state.setCellContents(where.x,where.y,next);
 	}
+	public void mouseDraggedEvent(BoardState state, Point where)
+	{
+	}
 
 	/**
 	 * Is this puzzle provably solved in any of these board states?

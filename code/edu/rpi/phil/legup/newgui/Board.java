@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
+import java.awt.event.InputEvent;
 import java.util.Vector;
 import edu.rpi.phil.legup.BoardDrawingHelper;
 import edu.rpi.phil.legup.BoardState;
@@ -67,7 +68,132 @@ public class Board extends DynamicViewer implements BoardDataChangeListener
 		System.out.println("Redrawing number " + count);
 		BoardDrawingHelper.draw(g);
 	}
+	protected void mouseDraggedAt(Point p, MouseEvent e){
+		Selection selection = Legup.getInstance().getSelections().getFirstSelection();
 
+		BoardState state = selection.getState();
+		Vector<BoardState> parentStates = state.getTransitionsTo();
+
+		PuzzleModule pm = Legup.getInstance().getPuzzleModule();
+
+		if(pm == null)
+			return; //This doesn't make sense but it was already here
+
+		if (e.getButton() == MouseEvent.BUTTON1)
+		{
+			Dimension d = pm.getImageSize();
+			int imW = d.width;
+			int imH = d.height;
+			int w  = state.getWidth();
+			int h = state.getHeight();
+			lastMousePoint = null;
+
+			p.x -= imW;
+			p.y -= imH;
+
+			p.x = (int)(Math.floor((double)p.x/imW));
+			p.y = (int)(Math.floor((double)p.y/imH));
+
+			if(pm.defaultApplication != null)
+			{
+				JustificationFrame.justificationApplied(state,pm.defaultApplication);
+				pm.defaultApplication.doDefaultApplication(state,pm,p);
+				pm.defaultApplication = null;
+			}
+			/*else if (parentStates.size() == 0)
+			{
+				// can't add to the root state, print an error
+				//parent.showStatus("You can not change the initial state.");
+			}*/
+			else if (state.getTransitionsFrom().size() > 0 && LEGUP_Gui.profFlag(LEGUP_Gui.INTERN_RO))
+			{
+				parent.showStatus("You cannot modify internal nodes in this proof mode");
+			}
+			else
+			{
+				if (p.x >= 0 && p.y >= 0)
+				{
+					lastMousePoint = new Point(p);
+					if (p.x < w && p.y < h)
+					{ // p.x and p.y hold the grid point now!
+
+						if (state.isModifiableCell(p.x,p.y))
+						{
+							
+							if (!state.isModifiable()) {
+								BoardState next = state.addTransitionFrom();
+								Legup.getInstance().getSelections().setSelection(new Selection(next, false));	
+								pm.mouseDraggedEvent(next, p);
+							} else {
+								pm.mouseDraggedEvent(state, p);
+							}
+							
+							// This is unnecessary, board is repainted on
+							// boardstate change anyway
+							//repaint();
+						}
+						else
+							parent.showStatus("You are not allowed to change that cell.");
+					}
+				}
+			}
+		}
+		else if((e.getModifiers() & InputEvent.BUTTON1_MASK) == InputEvent.BUTTON1_MASK) // if the left mouse button is pressed but we did not just press it
+		{
+			Dimension d = pm.getImageSize();
+			int imW = d.width;
+			int imH = d.height;
+			int w  = state.getWidth();
+			int h = state.getHeight();
+			p.x -= imW;
+			p.y -= imH;
+
+			p.x = (int)(Math.floor((double)p.x/imW));
+			p.y = (int)(Math.floor((double)p.y/imH));
+
+			if(pm.defaultApplication != null)
+			{
+				JustificationFrame.justificationApplied(state,pm.defaultApplication);
+				pm.defaultApplication.doDefaultApplication(state,pm,p);
+				pm.defaultApplication = null;
+			}
+			/*else if (parentStates.size() == 0)
+			{
+				// can't add to the root state, print an error
+				//parent.showStatus("You can not change the initial state.");
+			}*/
+			else if (state.getTransitionsFrom().size() > 0 && LEGUP_Gui.profFlag(LEGUP_Gui.INTERN_RO))
+			{
+				parent.showStatus("You cannot modify internal nodes in this proof mode");
+			}
+			else
+			{
+				if (p.x >= 0 && p.y >= 0)
+				{
+					if (p.x < w && p.y < h)
+					{ // p.x and p.y hold the grid point now!
+
+						if (state.isModifiableCell(p.x,p.y))
+						{
+							
+							if (!state.isModifiable()) {
+								//BoardState next = state.addTransitionFrom();
+								//pm.mouseDraggedEvent(next, p);
+							} else {
+								pm.mouseDraggedEvent(state, p);
+							}
+							
+							// This is unnecessary, board is repainted on
+							// boardstate change anyway
+							//repaint();
+						}
+						else
+							parent.showStatus("You are not allowed to change that cell.");
+					}
+				}
+			}
+		}
+	}
 	protected void mousePressedAt(Point p, MouseEvent e)
 	{
 		Selection selection = Legup.getInstance().getSelections().getFirstSelection();
