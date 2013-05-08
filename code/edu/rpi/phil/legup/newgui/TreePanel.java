@@ -886,6 +886,30 @@ public class TreePanel extends DynamicViewer implements TransitionChangeListener
 	private Point mousePoint;
 	protected void mouseMovedAt(Point p, MouseEvent e)
 	{
+		// TODO FIXME
+		// remove custom popup rendering
+		// use javax.swing.Popup instead
+/* EXAMPLE
+		// at the top with the rest of the imports
+		import javax.swing.PopupFactory;
+		import javax.swing.Popup;
+		// make the popup factory, only need one
+		PopupFactory factory = PopupFactory.getSharedInstance();
+		// where are we displaying the popup
+		Point p = MouseInfo.getPointerInfo().getLocation();
+		// create the popup, need to make one for each time we display a popup
+		Popup popup = factory.getPopup(this,
+			// what are we displaying
+			new JLabel(new ImageIcon("images/sudoku/forcedByDeduction.png")),
+			// where we are displaying it
+			p.x, p.y);
+		// display the popup
+		popup.show();
+		// ....
+		// destroy the popup, can't reuse
+		popup.hide();
+*/
+		
 		Selection prev = mouseOver;
 		mouseOver = getSelectionAtPoint(Legup.getInstance().getInitialBoardState(), p);
 		mousePoint = p;
