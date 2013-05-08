@@ -32,7 +32,7 @@ import edu.rpi.phil.legup.Selection;
  * The TreePanel is where the tree view is stored
  *
  */
-public class TreePanel extends ZoomablePanel implements TransitionChangeListener, TreeSelectionListener
+public class TreePanel extends DynamicViewer implements TransitionChangeListener, TreeSelectionListener
 {
 	private static final long serialVersionUID = 3124502814357135662L;
 	public static final Color nodeColor = new Color(255,255,155);
@@ -78,7 +78,8 @@ public class TreePanel extends ZoomablePanel implements TransitionChangeListener
 		BoardState.addTransitionChangeListener(this);
 		Legup.getInstance().getSelections().addTreeSelectionListener(this);
 
-		setDefaultPosition(-60,-80);
+		// must specify a starting size, TODO update this as tree grows
+		setSize( new Dimension( 200, 200 ) );
 		setPreferredSize(new Dimension(640,160));
 	}
 
@@ -105,11 +106,48 @@ public class TreePanel extends ZoomablePanel implements TransitionChangeListener
 		return rv;
 	}
 
+	// recursively computes the bounding rectangle of the tree
+	private Rectangle getTreeBounds( BoardState state ){
+		// get the position of the current node and add padding
+		Rectangle bounds = new Rectangle( state.getLocation() );
+		bounds.grow( 2*NODE_RADIUS, 2*NODE_RADIUS );
+		// get the relevant child nodes
+		Vector <BoardState> children = state.isCollapsed() ?
+			getLastCollapsed(state).getTransitionsFrom() :
+			state.getTransitionsFrom();
+		// compute the union of the child bounding boxes recursively
+		for( int c = 0; c < children.size(); c++ )
+			bounds = bounds.union( getTreeBounds( children.get(c) ) );
+		return bounds;
+	}
+
 	protected void draw(Graphics2D g)
 	{
 		currentStateBoxes.clear();
 		BoardState state = Legup.getInstance().getInitialBoardState();
 		if( state != null ){
+			
+			// TODO FIXME
+			// we should update the size using setSize() as soon as
+			// the tree changes size (add/remove nodes/transitions)
+			// updating the size during drawing leads to a loop
+			// as updating the size triggers another redrawing
+			Rectangle bounds = getTreeBounds( state );
+			System.out.printf( "Tree Bounds x: %d y: %d w: %d h: %d\n",
+				bounds.x, bounds.y, bounds.width, bounds.height );
+			setSize( bounds.getSize() );
+			
+			// TODO FIXME
+			// adjust the position of the root node so it is centered
+			if( bounds.x != 0 || bounds.y != 0 )
+				state.setOffset( new Point( -bounds.x, -bounds.y ) );
+			
+			// set high quality rendering
+			g.setRenderingHint( RenderingHints.KEY_ANTIALIASING,
+				RenderingHints.VALUE_ANTIALIAS_ON );
+			g.setRenderingHint( RenderingHints.KEY_TEXT_ANTIALIASING,
+				RenderingHints.VALUE_TEXT_ANTIALIAS_ON );
+			
 			drawTree(g,state);
 			drawCurrentStateBoxes(g);
 			if (mouseOver != null) drawMouseOver(g);
@@ -124,6 +162,8 @@ public class TreePanel extends ZoomablePanel implements TransitionChangeListener
 	 */
 	private void drawTree(Graphics g, BoardState state)
 	{
+		// TODO FIXME why are we converting Graphics2D to Graphics
+		// and back again?
 		Graphics2D g2D = (Graphics2D)g;
 		ArrayList <Selection> sel = Legup.getInstance().getSelections().getCurrentSelection();
 		boolean isCollapsed = state.isCollapsed();
@@ -863,8 +903,10 @@ public class TreePanel extends ZoomablePanel implements TransitionChangeListener
 		if (lastMovePoint == null)
 			lastMovePoint = new Point(p);
 			
-		moveX += p.x - lastMovePoint.x;
-		moveY += p.y - lastMovePoint.y;
+		// does not work with DynamicViewer
+		// also, is this still necessary?
+	//	moveX += p.x - lastMovePoint.x;
+	//	moveY += p.y - lastMovePoint.y;
 		
 		repaint();
 	}
