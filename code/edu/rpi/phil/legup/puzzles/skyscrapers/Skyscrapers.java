@@ -27,5 +27,28 @@ import edu.rpi.phil.legup.PuzzleRule;
 
 public class Skyscrapers extends PuzzleModule
 {
+  private int boardSize = 0;
+  public Skyscrapers()
+  {
+    name = "Skyscrapers";
+  }
   
+  /**
+  * Creates a BoardState from an input file.
+  * @param filename the location of the file containing the boardstate
+  * @return the BoardState described by the file.
+  **/
+  public BoardState importPuzzle(String filename)
+  {
+    BoardState ret = super.importPuzzle(filename);
+    if(ret != null)
+    {
+      boardSize = ret.getWidth();
+    }
+    else
+    {
+      boardSize = 0;
+    }
+    return ret;
+  }
 }
