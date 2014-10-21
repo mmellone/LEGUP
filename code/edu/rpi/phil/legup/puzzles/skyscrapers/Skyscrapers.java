@@ -30,6 +30,10 @@ public class Skyscrapers extends PuzzleModule
   public static int CELL_UNKNOWN = 0; //rewritten for clarity
   private int boardSize = 0;
   
+  private Vector<PuzzleRule> puzzleRules = new Vector<PuzzleRule>();
+  private Vector<Contradiction> contraRules = new Vector<Contradiction>();
+  private Vector<CaseRule> caseRules = new Vector<CaseRule>();
+  
   public int numAcceptableStates() { return boardSize + 1; }
   
   public Skyscrapers()
@@ -123,5 +127,20 @@ public class Skyscrapers extends PuzzleModule
     {
       return Integer.parseInt(state);
     }
+  }
+  
+  public Vector<PuzzleRule> getRules()
+  {
+    return puzzleRules;
+  }
+  
+  public Vector <Contradiction> getContradictions()
+  {
+    return contraRules;
+  }
+  
+  public Vector<CaseRule> getCaseRules()
+  {
+    return caseRules;
   }
 }
