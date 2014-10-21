@@ -39,6 +39,7 @@ public class Skyscrapers extends PuzzleModule
   
   /**
    * Creates a BoardState from an input file.
+   *
    * @param filename the location of the file containing the boardstate
    * @return the BoardState described by the file.
    **/
@@ -88,6 +89,12 @@ public class Skyscrapers extends PuzzleModule
     return ret;
   }
   
+  /**
+   * Gets the name of a state from its number.
+   *
+   * @param state the state number
+   * @return the name of the state
+   **/
   public String getStateName(int state)
   {
     if(state != 0)
@@ -100,6 +107,12 @@ public class Skyscrapers extends PuzzleModule
     }
   }
   
+  /**
+   * Gets the number of a state from its name.
+   *
+   * @param state the state name.
+   * @return the state number.
+   **/
   public String getStateNumber(String state)
   {
     if(state.equals(""))
