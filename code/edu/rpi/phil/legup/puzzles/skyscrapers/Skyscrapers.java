@@ -87,4 +87,28 @@ public class Skyscrapers extends PuzzleModule
     ret = (ret + 1) % numAcceptableStates;
     return ret;
   }
+  
+  public String getStateName(int state)
+  {
+    if(state != 0)
+    {
+      return state + "";
+    }
+    else
+    {
+      return "";
+    }
+  }
+  
+  public String getStateNumber(String state)
+  {
+    if(state.equals(""))
+    {
+      return 0;
+    }
+    else
+    {
+      return Integer.parseInt(state);
+    }
+  }
 }
