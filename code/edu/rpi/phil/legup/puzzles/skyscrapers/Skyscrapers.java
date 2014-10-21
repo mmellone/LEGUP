@@ -73,7 +73,7 @@ public class Skyscrapers extends PuzzleModule
   public int getAbsoluteNextCellValue(int x, int y, BoardState boardState)
   {
     int ret = boardState.getCellContents(x,y);
-    ret = (ret + 1) % numAcceptableStates;
+    ret = (ret + 1) % numAcceptableStates();
     return ret;
   }
   
@@ -86,10 +86,10 @@ public class Skyscrapers extends PuzzleModule
    * @param boardState BoardState that the cell should be looked up in
    * @return The next cell value
    */
-  public int getAbsoluteNextCellValue(int x, int y, BoardState boardState)
+  public int getNextCellValue(int x, int y, BoardState boardState)
   {
     int ret = boardState.getCellContents(x,y);
-    ret = (ret + 1) % numAcceptableStates;
+    ret = (ret + 1) % numAcceptableStates();
     return ret;
   }
   
@@ -117,7 +117,7 @@ public class Skyscrapers extends PuzzleModule
    * @param state the state name.
    * @return the state number.
    **/
-  public String getStateNumber(String state)
+  public int getStateNumber(String state)
   {
     if(state.equals(""))
     {
