@@ -38,10 +38,10 @@ public class Skyscrapers extends PuzzleModule
   }
   
   /**
-  * Creates a BoardState from an input file.
-  * @param filename the location of the file containing the boardstate
-  * @return the BoardState described by the file.
-  **/
+   * Creates a BoardState from an input file.
+   * @param filename the location of the file containing the boardstate
+   * @return the BoardState described by the file.
+   **/
   public BoardState importPuzzle(String filename)
   {
     BoardState ret = super.importPuzzle(filename);
@@ -53,6 +53,38 @@ public class Skyscrapers extends PuzzleModule
     {
       boardSize = 0;
     }
+    return ret;
+  }
+  
+  /**
+   * Get the next call value of all of them (so if we're editing tree tent, for example, we can
+   * change to and from trees)
+   *
+   * @param x Column coordinate of the cell
+   * @param y Row coordinate of the cell
+   * @param boardState BoardState that the cell should be looked up in
+   * @return The next cell value
+   */
+  public int getAbsoluteNextCellValue(int x, int y, BoardState boardState)
+  {
+    int ret = boardState.getCellContents(x,y);
+    ret = (ret + 1) % numAcceptableStates;
+    return ret;
+  }
+  
+  
+  /**
+   * Gets the next cell value for a specified cell in a boardstate
+   *
+   * @param x Column coordinate of the cell
+   * @param y Row coordinate of the cell
+   * @param boardState BoardState that the cell should be looked up in
+   * @return The next cell value
+   */
+  public int getAbsoluteNextCellValue(int x, int y, BoardState boardState)
+  {
+    int ret = boardState.getCellContents(x,y);
+    ret = (ret + 1) % numAcceptableStates;
     return ret;
   }
 }
