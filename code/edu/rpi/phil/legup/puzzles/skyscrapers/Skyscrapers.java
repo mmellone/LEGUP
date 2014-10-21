@@ -27,7 +27,11 @@ import edu.rpi.phil.legup.PuzzleRule;
 
 public class Skyscrapers extends PuzzleModule
 {
+  public static int CELL_UNKNOWN = 0; //rewritten for clarity
   private int boardSize = 0;
+  
+  public int numAcceptableStates() { return boardSize + 1; }
+  
   public Skyscrapers()
   {
     name = "Skyscrapers";
