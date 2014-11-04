@@ -129,6 +129,11 @@ public class Skyscrapers extends PuzzleModule
     }
   }
   
+  /**
+   * Returns a list of the Basic Rules.
+   *
+   * @return a list of the basic rules.
+   **/
   public Vector<PuzzleRule> getRules()
   {
     return puzzleRules;
