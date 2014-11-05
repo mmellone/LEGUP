@@ -128,7 +128,51 @@ public class Skyscrapers extends PuzzleModule
 			return Integer.parseInt(state);
 		}
 	}
-	
+
+	public String getImageLocation(int cellValue){
+		return "images/treetent/unknown.gif";
+	}
+
+	public void initBoard(BoardState state)
+	{
+		int[] dir =
+		{
+			BoardState.LABEL_LEFT,
+			BoardState.LABEL_RIGHT,
+			BoardState.LABEL_TOP,
+			BoardState.LABEL_BOTTOM
+		};
+
+		int[] sizes =
+		{
+			state.getHeight(),
+			state.getHeight(),
+			state.getWidth(),
+			state.getWidth(),
+		};
+
+		for(int x = 0; x < dir.length; ++x)
+		{
+			for(int c = 0; c < sizes[x]; ++c)
+			{
+				state.setLabel(dir[x],c, 10);
+			}
+		}
+	}
+
+	public BoardImage[] getAllBorderImages()
+	{
+		BoardImage[] s = new BoardImage[20];
+		int count = 0;
+
+		for (int x = 0; x < 20; ++x)
+		{
+			s[count++] = new BoardImage("images/skyscrapers/" + (x)+ ".gif",10 + x);
+		}
+
+		return s;
+	}
+
 	/**
 	 * Returns a list of the Basic Rules.
 	 *

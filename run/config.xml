@@ -32,5 +32,9 @@
 		    <name>Fillapix</name>
 			<class>edu.rpi.phil.legup.puzzles.fillapix.Fillapix</class>
 		</puzzle>
+		<puzzle>
+		    <name>Skyscrapers</name>
+			<class>edu.rpi.phil.legup.puzzles.skyscrapers.Skyscrapers</class>
+		</puzzle>
 	</puzzles>
 </legupconfig>
