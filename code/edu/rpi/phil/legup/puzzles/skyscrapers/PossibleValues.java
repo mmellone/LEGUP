@@ -9,4 +9,13 @@ public class PossibleValues extends CaseRule
 		setName("Possible Values");
 		description = "Each cell has a value between 1 and N.";
 	}
+
+	public String checkCaseRuleRaw(BoardState state)
+	{
+		String rv = null;
+		BoardState parent = state.getSingleParentState();
+		
+
+		return rv;
+	}
 }
