@@ -73,7 +73,7 @@ public class Skyscrapers extends PuzzleModule
 	public int getAbsoluteNextCellValue(int x, int y, BoardState boardState)
 	{
 		int ret = boardState.getCellContents(x,y);
-		ret = (ret + 1) % numAcceptableStates();
+		ret = (ret + 1) % (boardState.getWidth() + 1);
 		return ret;
 	}
 	
@@ -89,7 +89,7 @@ public class Skyscrapers extends PuzzleModule
 	public int getNextCellValue(int x, int y, BoardState boardState)
 	{
 		int ret = boardState.getCellContents(x,y);
-		ret = (ret + 1) % numAcceptableStates();
+		ret = (ret + 1) % (boardState.getWidth() + 1);
 		return ret;
 	}
 	
@@ -191,5 +191,25 @@ public class Skyscrapers extends PuzzleModule
 	public Vector<CaseRule> getCaseRules()
 	{
 		return caseRules;
+	}
+
+	public void drawCell( Graphics2D g, int x, int y, BoardState state ){
+		if (state.getCellContents(x,y) != 0) drawText(g,x, y, String.valueOf(state.getCellContents(x,y)));
+	}
+
+	public void drawLeftLabel(Graphics2D g, int val, int x, int y){
+		if(val != 0) drawText(g,x, y, String.valueOf(val - 10));
+	}
+
+	public void drawRightLabel(Graphics2D g, int val, int x, int y){
+		if(val != 0) drawText(g,x, y, String.valueOf(val - 10));
+	}
+
+	public void drawTopLabel(Graphics2D g, int val, int x, int y){
+		if(val != 0) drawText(g,x, y, String.valueOf(val - 10));
+	}
+
+	public void drawBottomLabel(Graphics2D g, int val, int x, int y){
+		if(val != 0) drawText(g,x, y, String.valueOf(val - 10));
 	}
 }
