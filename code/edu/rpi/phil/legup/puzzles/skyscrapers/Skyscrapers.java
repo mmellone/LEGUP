@@ -29,6 +29,8 @@ public class Skyscrapers extends PuzzleModule
 {
 	public static int CELL_UNKNOWN = 0; //rewritten for clarity
 	private int boardSize = 0;
+
+	public boolean hasLabels(){return true;}
 	
 	private Vector<PuzzleRule> puzzleRules = new Vector<PuzzleRule>();
 	private Vector<Contradiction> contraRules = new Vector<Contradiction>();
