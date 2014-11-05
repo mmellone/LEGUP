@@ -198,18 +198,18 @@ public class Skyscrapers extends PuzzleModule
 	}
 
 	public void drawLeftLabel(Graphics2D g, int val, int x, int y){
-		if(val != 0) drawText(g,x, y, String.valueOf(val - 10));
+		if(val != 10) drawText(g,x, y, String.valueOf(val - 10));
 	}
 
 	public void drawRightLabel(Graphics2D g, int val, int x, int y){
-		if(val != 0) drawText(g,x, y, String.valueOf(val - 10));
+		if(val != 10) drawText(g,x, y, String.valueOf(val - 10));
 	}
 
 	public void drawTopLabel(Graphics2D g, int val, int x, int y){
-		if(val != 0) drawText(g,x, y, String.valueOf(val - 10));
+		if(val != 10) drawText(g,x, y, String.valueOf(val - 10));
 	}
 
 	public void drawBottomLabel(Graphics2D g, int val, int x, int y){
-		if(val != 0) drawText(g,x, y, String.valueOf(val - 10));
+		if(val != 10) drawText(g,x, y, String.valueOf(val - 10));
 	}
 }
