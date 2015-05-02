@@ -1,0 +1,80 @@
+QEXO(1)                     General Commands Manual                    QEXO(1)
+
+
+
+NNAAMMEE
+       qexo - the XQuery language implemented on a Java VM
+
+SSYYNNOOPPSSIISS
+       qqeexxoo _[_o_p_t_i_o_n_s_]
+       jjaavvaa kkaawwaa..rreeppll ----xxqquueerryy _[_o_p_t_i_o_n_s_]
+
+DDEESSCCRRIIPPTTIIOONN
+       This  manual  page documents briefly the qqeexxoo package, an XQuery imple‐
+       mentation written completely in the Java language.  XQuery  expressions
+       are compiled into Java bytecodes for efficiency.
+
+       XQuery  is a new language designed for querying, manipulating, and gen‐
+       erating XML and similar data sets.
+
+       Using the qqeexxoo script is equivalent to invoking an interpreter  of  the
+       Java  language  on  the  kkaawwaa..rreeppll  class  and  specifying the ----xxqquueerryy
+       option.
+
+       This manual page is just a quick synopsis.  For more  information,  see
+       the links below.
+
+
+OOPPTTIIOONNSS
+       --ee _e_x_p_r_e_s_s_i_o_n
+              Evaluate the _e_x_p_r_e_s_s_i_o_n.
+
+       --cc _e_x_p_r_e_s_s_i_o_n
+              Evaluate  the  _e_x_p_r_e_s_s_i_o_n,  but does not cause the start-up file
+              _~_/_._k_a_w_a_r_c_._s_c_m to be read.
+
+       --ff _f_i_l_e_n_a_m_e
+              Read and evaluate XQuery expressions from the _f_i_l_e_n_a_m_e.
+
+       --ss     Enter an interactive read-evaluate-print command loop.
+
+       --ww     Enter an interactive read-evaluate-print in a new top-level win‐
+              dow.
+
+       --CC _f_i_l_e_n_a_m_e
+              Compile  _f_i_l_e_n_a_m_e to one or more Java class files.  See the Kawa
+              manual for details.
+
+       If no options are specified, it is equivalent to --ss.
+       GNU rreeaaddlliinnee((33)) can normally be used to edit commands.
+
+
+FFIILLEESS
+       //uussrr//bbiinn//qqeexxoo
+              The qqeexxoo executable  just  invokes  kkaawwaa((11))  with  the  ----xxqquueerryy
+              option.
+
+       ~~//..kkaawwaarrcc..ssccmm
+              Commands that are executed when qqeexxoo (or kkaawwaa) is started.
+
+AAUUTTHHOORR
+       Per Bothner <per@bothner.com>.
+
+SSEEEE AALLSSOO
+       kkaawwaa((11))
+
+       iinnffoo kkaawwaa - the complete Kawa manual.
+
+       _h_t_t_p_:_/_/_w_w_w_._g_n_u_._o_r_g_/_s_o_f_t_w_a_r_e_/_q_x_e_o_/ ⟨http://www.gnu.org/software/qxeo/⟩ -
+       the qqeexxoo home page.
+
+       _h_t_t_p_:_/_/_w_w_w_._g_n_u_._o_r_g_/_s_o_f_t_w_a_r_e_/_k_a_w_a_/ ⟨http://www.gnu.org/software/kawa/⟩ -
+       the kkaawwaa home page.
+
+       _h_t_p_p_:_/_/_w_w_w_._w_3_._o_r_g_/_X_M_L_/_Q_u_e_r_y  ⟨htpp://www.w3.org/XML/Query"⟩  -  the W3C
+       XQuery home page.
+
+
+
+
+                                                                       QEXO(1)

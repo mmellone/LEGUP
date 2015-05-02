@@ -1,0 +1,72 @@
+KAWA(1)                     General Commands Manual                    KAWA(1)
+
+
+
+NNAAMMEE
+       kawa - Scheme language implemented using on a Java VM
+
+SSYYNNOOPPSSIISS
+       kkaawwaa _[_o_p_t_i_o_n_s_]
+       jjaavvaa kkaawwaa..rreeppll _[_o_p_t_i_o_n_s_]
+
+DDEESSCCRRIIPPTTIIOONN
+       This  manual  page documents briefly the kkaawwaa package, a Scheme dialect
+       written completely in the Java language.   Scheme  forms  are  compiled
+       into Java bytecodes for efficiency.
+
+       Scheme is a high-level non-pure functional language in the Lisp family,
+       with lexical scoping dynamically-types.  The  Kawa  dialect  of  Scheme
+       contains hooks to access and control Java objects.
+
+       Using  the  kkaawwaa script is equivalent to invoking an interpreter of the
+       Java language on the kkaawwaa..rreeppll class.
+
+       This manual page is just a quick synopsis.  For more information,  read
+       the kkaawwaa manual - see below.
+
+
+OOPPTTIIOONNSS
+       --ee _e_x_p_r_e_s_s_i_o_n
+              Evaluate the _e_x_p_r_e_s_s_i_o_n.
+
+       --cc _e_x_p_r_e_s_s_i_o_n
+              Evaluate  the  _e_x_p_r_e_s_s_i_o_n,  but does not cause the start-up file
+              _~_/_._k_a_w_a_r_c_._s_c_m to be read.
+
+       --ff _f_i_l_e_n_a_m_e
+              Read and evaluate Scheme commands from the _f_i_l_e_n_a_m_e.
+
+       --ss     Enter an interactive read-evaluate-print command loop.
+
+       --ww     Enter an interactive read-evaluate-print in a new top-level win‐
+              dow.
+
+       --CC _f_i_l_e_n_a_m_e
+              Compile  _f_i_l_e_n_a_m_e to one or more Java class files.  See the Kawa
+              manual for details.
+
+       If no options are specified, it is equivalent to --ss.
+       GNU rreeaaddlliinnee((33)) can normally be used to edit commands.
+
+
+FFIILLEESS
+       //uussrr//bbiinn//kkaawwaa
+              The kkaawwaa executable, which starts a jjaavvaa interpreter.
+
+       ~~//..kkaawwaarrcc..ssccmm
+              Commands that are executed when kkaawwaa is started.
+
+AAUUTTHHOORR
+       Per Bothner <per@bothner.com>.
+
+SSEEEE AALLSSOO
+       iinnffoo kkaawwaa - the complete Kawa manual.
+
+       _h_t_t_p_:_/_/_w_w_w_._g_n_u_._o_r_g_/_s_o_f_t_w_a_r_e_/_k_a_w_a_/ ⟨http://www.gnu.org/software/kawa/⟩ -
+       the kkaawwaa home page, based on the same Kawa manual.
+
+       qqeexxoo((11)) - an implementation of XQuery using the same engine.
+
+
+
+                                                                       KAWA(1)
