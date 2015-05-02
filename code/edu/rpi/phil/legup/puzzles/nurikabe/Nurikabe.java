@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
+import javax.swing.JOptionPane;
 
 import edu.rpi.phil.legup.BoardImage;
 import edu.rpi.phil.legup.BoardState;
@@ -24,6 +25,7 @@ import edu.rpi.phil.legup.CaseRule;
 import edu.rpi.phil.legup.Contradiction;
 import edu.rpi.phil.legup.PuzzleModule;
 import edu.rpi.phil.legup.PuzzleRule;
+import edu.rpi.phil.legup.Legup;
 
 
 public class Nurikabe extends PuzzleModule
@@ -46,6 +48,10 @@ public class Nurikabe extends PuzzleModule
 	//int CELL_BLOCK0 = 10, CELL_BLOCK1 = 11, etc...
 
 	public Nurikabe(){
+		System.out.println("check");
+		if (JOptionPane.showConfirmDialog(null, "Run AI?", "AI Option", JOptionPane.YES_NO_OPTION) == 0) {
+			basicSolve(Legup.getInstance().getInitialBoardState());
+		}
 	}
 
 	public void drawCell( Graphics2D g, int x, int y, int state ){
@@ -135,6 +141,30 @@ public class Nurikabe extends PuzzleModule
 	return true;
 
 	}
+
+
+
+
+	//Mitchell AI Stuff
+	public void basicSolve(BoardState state) {
+		for (int y = 0; y < state.getHeight(); y++) {
+			for (int x = 0; x < state.getWidth(); x++) {
+				System.out.println(state.getCellContents(x, y));
+			}
+		}
+	}
+
+
+
+
+
+
+
+
+
+
+
+
 	/* AI stuff */
 	public BoardState guess(BoardState Board) {
 		// out of forced moves, need to guess
