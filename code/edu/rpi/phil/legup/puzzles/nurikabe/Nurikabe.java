@@ -26,6 +26,7 @@ import edu.rpi.phil.legup.Contradiction;
 import edu.rpi.phil.legup.PuzzleModule;
 import edu.rpi.phil.legup.PuzzleRule;
 import edu.rpi.phil.legup.Legup;
+import edu.rpi.phil.legup.Selection;
 
 
 public class Nurikabe extends PuzzleModule
@@ -50,7 +51,7 @@ public class Nurikabe extends PuzzleModule
 	public Nurikabe(){
 		System.out.println("check");
 		if (JOptionPane.showConfirmDialog(null, "Run AI?", "AI Option", JOptionPane.YES_NO_OPTION) == 0) {
-			basicSolve(Legup.getInstance().getInitialBoardState());
+			basicSolve(Legup.getCurrentState());
 		}
 	}
 
@@ -99,7 +100,7 @@ public class Nurikabe extends PuzzleModule
 		ruleList.add(new RuleBlackBetweenRegions());
 		ruleList.add(new RulePreventBlackSquare());
 		ruleList.add(new RuleSurroundRegion());
-		ruleList.add(new RuleCornerBlack());
+		// ruleList.add(new RuleCornerBlack());
 		ruleList.add(new RuleBlackBottleNeck());
 		ruleList.add(new RuleWhiteBottleNeck());
 		ruleList.add(new RuleFillInBlack());
@@ -147,192 +148,244 @@ public class Nurikabe extends PuzzleModule
 
 	//Mitchell AI Stuff
 	public void basicSolve(BoardState state) {
-		for (int y = 0; y < state.getHeight(); y++) {
-			for (int x = 0; x < state.getWidth(); x++) {
-				System.out.println(state.getCellContents(x, y));
-			}
-		}
+		// for (int y = 0; y < state.getHeight(); y++) {
+		// 	for (int x = 0; x < state.getWidth(); x++) {
+		// 		System.out.println(state.getCellContents(x, y));
+		// 	}
+		// }
+		bruteForceSolve(state);
 	}
 
+	/* solves the puzzle by simply trying looping through the board
+	   and applying as many basic rules as possible */
+	private BoardState bruteForceSolve(BoardState origState) {
+		Vector<PuzzleRule> rules = this.getRules();
 
+		int unknownCount = 0;
 
-
-
-
-
-
-
-
-
-
-	/* AI stuff */
-	public BoardState guess(BoardState Board) {
-		// out of forced moves, need to guess
-		Point guess = GenerateBestGuess(Board);
-		// guess, if we found one
-		if (guess.x != -1 && guess.y != -1) {
-			BoardState Parent = Board.getSingleParentState();
-			BoardState CaseBlack = Board;
-			BoardState CaseWhite = Parent.addTransitionFrom();
-			CaseBlack.setCellContents(guess.x, guess.y, CELL_BLACK);
-			CaseWhite.setCellContents(guess.x, guess.y, CELL_WHITE);
-			Parent.setCaseSplitJustification(new CaseBlackOrWhite());
-			System.out.println("Guessed at "+guess.x+","+guess.y);
-			//Legup.setSelection(CaseTent,false);
-			return CaseBlack;
-		}
-		// if we didn't then the board is full, and we are finished (thus, the returned board will be the same as the one we were given
-		System.out.println("Statement: Your puzzle has been solved already. Why do you persist?");
-		return Board;
-	}
-
-	private Point GenerateBestGuess(BoardState Board) {
-		// this should more properly be some kind of ranking system whereby different
-		// conditions scored points and the highest scoring square was chosen.
-		// until there is more time to actually watch the AI, it scores based on closeness
-		// to a probability. In the future, it might include points for having only one extra
-		// free space or something like that.
-		int currentX=-1;
-		int currentY=-1;
-		int height = Board.getHeight();
-		int width = Board.getWidth();
-		double currentOff = Double.POSITIVE_INFINITY;
-		double BESTPROB = .25;
-
-		//Create a counter that will hold the number of white regions found
-		int regioncount = 0;
-		//Holds whether or not a cell has been visited
-		//1 represents visited and white
-		//0 not visited
-		//- visited but not white
-		boolean[][] visited = new boolean[width][height];
-		//Booleans which hold whether or not a cell is valid for the rule
-		boolean[][]white = new boolean[width][height];
-
-		Point temp;
-		//For each cell
-		for(int x = 0; x < width; ++x)
-		{
-			for(int y = 0; y < height; ++y)
-			{
-				//If the cell is white and we haven't visited it we need to loop through it and check it out
-				if((Board.getCellContents(x,y)>0 || Board.getCellContents(x,y) == Nurikabe.CELL_WHITE )&& visited[y][x] == false)
-				{
-					//Since we have found a white region previously unvisited, add one to the region count
-					++regioncount;
-					//This loops through and returns the number of unknowns surrounding the region
-					//If the loop finds a number then it returns -1 signifying that we can't apply the rule on this region
-					//Since visited is by reference it should get updated
-					temp = loopConnected(visited, Board,x,y,width,height);
-					//If there is only 1 unknown around the region than it must be white
-					if(temp.x<1 || temp.y<1)
-						continue;
-					double myProb = temp.x/temp.y;
-					//System.out.println("Square "+r+","+c+" prob: "+myProb);
-					double myOff = Math.abs(BESTPROB-myProb);
-					if (myOff < currentOff)
-					{
-						setWhite(white, new boolean[width][height] ,Board,x,y,width,height);
-						for(int r =0;r<width;r++)
-						{
-							for(int c = 0; c<height;c++)
-							{
-								if(white[r][c])
-								{
-									temp.x=c;
-									temp.y=r;
-								}
-							}
-						}
-						System.out.println("Got new guess square: "+temp.x+","+temp.y+", off ="+myOff);
-						currentX = temp.x;
-						currentY = temp.y;
-						currentOff = myOff;
-					}
+		for (int y = 0; y < origState.getHeight(); y++) {
+			for (int x = 0; x < origState.getWidth(); x++) {
+				if (origState.getCellContents(x, y) == Nurikabe.CELL_UNKNOWN) {
+					unknownCount++;
 				}
 			}
 		}
-		return new Point(currentX,currentY);
-	}
-	private Point loopConnected(boolean[][] neighbors,BoardState boardState, int x, int y, int width, int height)
-	{
-		//x == how many desired whites - actual
-		//y == how many surrounding unknowns
-		Point ret = new Point(0,0);
-		if(neighbors[y][x] == true)
-			return ret;
-		neighbors[y][x] = true;
-		if(boardState.getCellContents(x,y) == Nurikabe.CELL_BLACK)
-			return ret;
-		if(boardState.getCellContents(x,y) == Nurikabe.CELL_UNKNOWN)
-		{
-			++ret.y;
-			return ret;
+		if (unknownCount == 0) return origState;
+
+		BoardState tmp = origState.addTransitionFrom();
+		assert(tmp.getParents().size() == 1);
+		assert(tmp.getParents().get(0) == origState);
+
+		for (int y = 0; y < tmp.getHeight(); y++) {
+			for (int x = 0; x < tmp.getWidth(); x++) {
+				// Skip any cells that are already filled in
+				if (tmp.getCellContents(x, y) != Nurikabe.CELL_UNKNOWN) continue;
+
+				// See if any rules work if the cell is black
+				tmp.setCellContents(x, y, Nurikabe.CELL_BLACK);
+				for (PuzzleRule r : rules) {
+					if (r.checkRule(tmp) == null) {
+						tmp.setJustification(r);
+						tmp.endTransition();
+						Legup.setCurrentState(tmp.getChildren().get(0));
+						return bruteForceSolve(Legup.getCurrentState());
+					}
+				}
+
+				// See if any rules work if the cell is White
+				tmp.setCellContents(x, y, Nurikabe.CELL_WHITE);
+				for (PuzzleRule r : rules) {
+					if (r.checkRule(tmp) == null) {
+						tmp.setJustification(r);
+						tmp.endTransition();
+						Legup.setCurrentState(tmp.getChildren().get(0));
+						return bruteForceSolve(Legup.getCurrentState());
+					}
+				}
+				tmp.setCellContents(x, y, Nurikabe.CELL_UNKNOWN);
+			}
 		}
 
-		--ret.x;
-		if(boardState.getCellContents(x,y) > 0)
-			ret.x += boardState.getCellContents(x,y);
-
-		Point temp;
-		if(x+1 < width)
-		{
-			temp = loopConnected(neighbors, boardState, x+1, y, width, height);
-			ret.x += temp.x;
-			ret.y += temp.y;
-		}
-		if(x-1 >= 0)
-		{
-			temp = loopConnected(neighbors, boardState, x-1, y, width, height);
-			ret.x += temp.x;
-			ret.y += temp.y;
-		}
-		if(y+1 < height)
-		{
-			temp = loopConnected(neighbors, boardState, x, y+1, width, height);
-			ret.x += temp.x;
-			ret.y += temp.y;
-		}
-		if(y-1 >= 0)
-		{
-			temp = loopConnected(neighbors, boardState, x, y-1, width, height);
-			ret.x += temp.x;
-			ret.y += temp.y;
-		}
-		return ret;
-	}
-	private boolean[][] setWhite(boolean[][] white, boolean[][] neighbors ,BoardState boardState, int x, int y, int width, int height)
-	{
-		if(neighbors[y][x] == true)
-			return white;
-		neighbors[y][x] = true;
-
-		if(boardState.getCellContents(x,y) == Nurikabe.CELL_UNKNOWN)
-		{
-			white[y][x] = true;
-			return white;
-		}
-		if(boardState.getCellContents(x,y) == Nurikabe.CELL_BLACK)
-			return white;
-
-
-		if(x+1 < width)
-		{
-			white = setWhite(white, neighbors, boardState, x+1, y, width, height);
-		}
-		if(x-1 >= 0)
-		{
-			white = setWhite(white, neighbors, boardState, x-1, y, width, height);
-		}
-		if(y+1 < height)
-		{
-			white = setWhite(white, neighbors, boardState, x, y+1, width, height);
-		}
-		if(y-1 >= 0)
-		{
-			white = setWhite(white, neighbors, boardState, x, y-1, width, height);
-		}
-		return white;
+		return tmp;
 	}
 
+
+
+
+
+
+
+
+
+
+// 	/* AI stuff */
+// 	public BoardState guess(BoardState Board) {
+// 		// out of forced moves, need to guess
+// 		Point guess = GenerateBestGuess(Board);
+// 		// guess, if we found one
+// 		if (guess.x != -1 && guess.y != -1) {
+// 			BoardState Parent = Board.getSingleParentState();
+// 			BoardState CaseBlack = Board;
+// 			BoardState CaseWhite = Parent.addTransitionFrom();
+// 			CaseBlack.setCellContents(guess.x, guess.y, CELL_BLACK);
+// 			CaseWhite.setCellContents(guess.x, guess.y, CELL_WHITE);
+// 			Parent.setCaseSplitJustification(new CaseBlackOrWhite());
+// 			System.out.println("Guessed at "+guess.x+","+guess.y);
+// 			//Legup.setSelection(CaseTent,false);
+// 			return CaseBlack;
+// 		}
+// 		// if we didn't then the board is full, and we are finished (thus, the returned board will be the same as the one we were given
+// 		System.out.println("Statement: Your puzzle has been solved already. Why do you persist?");
+// 		return Board;
+// 	}
+//
+// 	private Point GenerateBestGuess(BoardState Board) {
+// 		// this should more properly be some kind of ranking system whereby different
+// 		// conditions scored points and the highest scoring square was chosen.
+// 		// until there is more time to actually watch the AI, it scores based on closeness
+// 		// to a probability. In the future, it might include points for having only one extra
+// 		// free space or something like that.
+// 		int currentX=-1;
+// 		int currentY=-1;
+// 		int height = Board.getHeight();
+// 		int width = Board.getWidth();
+// 		double currentOff = Double.POSITIVE_INFINITY;
+// 		double BESTPROB = .25;
+//
+// 		//Create a counter that will hold the number of white regions found
+// 		int regioncount = 0;
+// 		//Holds whether or not a cell has been visited
+// 		//1 represents visited and white
+// 		//0 not visited
+// 		//- visited but not white
+// 		boolean[][] visited = new boolean[width][height];
+// 		//Booleans which hold whether or not a cell is valid for the rule
+// 		boolean[][]white = new boolean[width][height];
+//
+// 		Point temp;
+// 		//For each cell
+// 		for(int x = 0; x < width; ++x)
+// 		{
+// 			for(int y = 0; y < height; ++y)
+// 			{
+// 				//If the cell is white and we haven't visited it we need to loop through it and check it out
+// 				if((Board.getCellContents(x,y)>0 || Board.getCellContents(x,y) == Nurikabe.CELL_WHITE )&& visited[y][x] == false)
+// 				{
+// 					//Since we have found a white region previously unvisited, add one to the region count
+// 					++regioncount;
+// 					//This loops through and returns the number of unknowns surrounding the region
+// 					//If the loop finds a number then it returns -1 signifying that we can't apply the rule on this region
+// 					//Since visited is by reference it should get updated
+// 					temp = loopConnected(visited, Board,x,y,width,height);
+// 					//If there is only 1 unknown around the region than it must be white
+// 					if(temp.x<1 || temp.y<1)
+// 						continue;
+// 					double myProb = temp.x/temp.y;
+// 					//System.out.println("Square "+r+","+c+" prob: "+myProb);
+// 					double myOff = Math.abs(BESTPROB-myProb);
+// 					if (myOff < currentOff)
+// 					{
+// 						setWhite(white, new boolean[width][height] ,Board,x,y,width,height);
+// 						for(int r =0;r<width;r++)
+// 						{
+// 							for(int c = 0; c<height;c++)
+// 							{
+// 								if(white[r][c])
+// 								{
+// 									temp.x=c;
+// 									temp.y=r;
+// 								}
+// 							}
+// 						}
+// 						System.out.println("Got new guess square: "+temp.x+","+temp.y+", off ="+myOff);
+// 						currentX = temp.x;
+// 						currentY = temp.y;
+// 						currentOff = myOff;
+// 					}
+// 				}
+// 			}
+// 		}
+// 		return new Point(currentX,currentY);
+// 	}
+// 	private Point loopConnected(boolean[][] neighbors,BoardState boardState, int x, int y, int width, int height)
+// 	{
+// 		//x == how many desired whites - actual
+// 		//y == how many surrounding unknowns
+// 		Point ret = new Point(0,0);
+// 		if(neighbors[y][x] == true)
+// 			return ret;
+// 		neighbors[y][x] = true;
+// 		if(boardState.getCellContents(x,y) == Nurikabe.CELL_BLACK)
+// 			return ret;
+// 		if(boardState.getCellContents(x,y) == Nurikabe.CELL_UNKNOWN)
+// 		{
+// 			++ret.y;
+// 			return ret;
+// 		}
+//
+// 		--ret.x;
+// 		if(boardState.getCellContents(x,y) > 0)
+// 			ret.x += boardState.getCellContents(x,y);
+//
+// 		Point temp;
+// 		if(x+1 < width)
+// 		{
+// 			temp = loopConnected(neighbors, boardState, x+1, y, width, height);
+// 			ret.x += temp.x;
+// 			ret.y += temp.y;
+// 		}
+// 		if(x-1 >= 0)
+// 		{
+// 			temp = loopConnected(neighbors, boardState, x-1, y, width, height);
+// 			ret.x += temp.x;
+// 			ret.y += temp.y;
+// 		}
+// 		if(y+1 < height)
+// 		{
+// 			temp = loopConnected(neighbors, boardState, x, y+1, width, height);
+// 			ret.x += temp.x;
+// 			ret.y += temp.y;
+// 		}
+// 		if(y-1 >= 0)
+// 		{
+// 			temp = loopConnected(neighbors, boardState, x, y-1, width, height);
+// 			ret.x += temp.x;
+// 			ret.y += temp.y;
+// 		}
+// 		return ret;
+// 	}
+// 	private boolean[][] setWhite(boolean[][] white, boolean[][] neighbors ,BoardState boardState, int x, int y, int width, int height)
+// 	{
+// 		if(neighbors[y][x] == true)
+// 			return white;
+// 		neighbors[y][x] = true;
+//
+// 		if(boardState.getCellContents(x,y) == Nurikabe.CELL_UNKNOWN)
+// 		{
+// 			white[y][x] = true;
+// 			return white;
+// 		}
+// 		if(boardState.getCellContents(x,y) == Nurikabe.CELL_BLACK)
+// 			return white;
+//
+//
+// 		if(x+1 < width)
+// 		{
+// 			white = setWhite(white, neighbors, boardState, x+1, y, width, height);
+// 		}
+// 		if(x-1 >= 0)
+// 		{
+// 			white = setWhite(white, neighbors, boardState, x-1, y, width, height);
+// 		}
+// 		if(y+1 < height)
+// 		{
+// 			white = setWhite(white, neighbors, boardState, x, y+1, width, height);
+// 		}
+// 		if(y-1 >= 0)
+// 		{
+// 			white = setWhite(white, neighbors, boardState, x, y-1, width, height);
+// 		}
+// 		return white;
+// 	}
+//
 }

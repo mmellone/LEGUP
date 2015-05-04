@@ -47,7 +47,7 @@ public class RuleFillInWhite extends PuzzleRule
 				if (destBoardState.getCellContents(x, y) !=
 						origBoardState.getCellContents(x, y)) {
 					if (destBoardState.getCellContents(x, y) != Nurikabe.CELL_WHITE) {
-						return "Only black cells are allowed for this rule!";
+						return "Only white cells are allowed for this rule!";
 					}
 					BoardState modified = origBoardState.copy();
 					modified.getBoardCells()[y][x] = Nurikabe.CELL_BLACK;
