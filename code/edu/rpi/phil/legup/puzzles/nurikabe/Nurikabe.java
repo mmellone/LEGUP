@@ -49,10 +49,10 @@ public class Nurikabe extends PuzzleModule
 	//int CELL_BLOCK0 = 10, CELL_BLOCK1 = 11, etc...
 
 	public Nurikabe(){
-		System.out.println("check");
-		if (JOptionPane.showConfirmDialog(null, "Run AI?", "AI Option", JOptionPane.YES_NO_OPTION) == 0) {
-			basicSolve(Legup.getCurrentState());
-		}
+		// System.out.println("check");
+		// if (JOptionPane.showConfirmDialog(null, "Run AI?", "AI Option", JOptionPane.YES_NO_OPTION) == 0) {
+		// 	basicSolve(Legup.getCurrentState());
+		// }
 	}
 
 	public void drawCell( Graphics2D g, int x, int y, int state ){
@@ -147,67 +147,67 @@ public class Nurikabe extends PuzzleModule
 
 
 	//Mitchell AI Stuff
-	public void basicSolve(BoardState state) {
-		// for (int y = 0; y < state.getHeight(); y++) {
-		// 	for (int x = 0; x < state.getWidth(); x++) {
-		// 		System.out.println(state.getCellContents(x, y));
-		// 	}
-		// }
-		bruteForceSolve(state);
-	}
+	// public void basicSolve(BoardState state) {
+	// 	// for (int y = 0; y < state.getHeight(); y++) {
+	// 	// 	for (int x = 0; x < state.getWidth(); x++) {
+	// 	// 		System.out.println(state.getCellContents(x, y));
+	// 	// 	}
+	// 	// }
+	// 	bruteForceSolve(state);
+	// }
 
 	/* solves the puzzle by simply trying looping through the board
 	   and applying as many basic rules as possible */
-	private BoardState bruteForceSolve(BoardState origState) {
-		Vector<PuzzleRule> rules = this.getRules();
-
-		int unknownCount = 0;
-
-		for (int y = 0; y < origState.getHeight(); y++) {
-			for (int x = 0; x < origState.getWidth(); x++) {
-				if (origState.getCellContents(x, y) == Nurikabe.CELL_UNKNOWN) {
-					unknownCount++;
-				}
-			}
-		}
-		if (unknownCount == 0) return origState;
-
-		BoardState tmp = origState.addTransitionFrom();
-		assert(tmp.getParents().size() == 1);
-		assert(tmp.getParents().get(0) == origState);
-
-		for (int y = 0; y < tmp.getHeight(); y++) {
-			for (int x = 0; x < tmp.getWidth(); x++) {
-				// Skip any cells that are already filled in
-				if (tmp.getCellContents(x, y) != Nurikabe.CELL_UNKNOWN) continue;
-
-				// See if any rules work if the cell is black
-				tmp.setCellContents(x, y, Nurikabe.CELL_BLACK);
-				for (PuzzleRule r : rules) {
-					if (r.checkRule(tmp) == null) {
-						tmp.setJustification(r);
-						tmp.endTransition();
-						Legup.setCurrentState(tmp.getChildren().get(0));
-						return bruteForceSolve(Legup.getCurrentState());
-					}
-				}
-
-				// See if any rules work if the cell is White
-				tmp.setCellContents(x, y, Nurikabe.CELL_WHITE);
-				for (PuzzleRule r : rules) {
-					if (r.checkRule(tmp) == null) {
-						tmp.setJustification(r);
-						tmp.endTransition();
-						Legup.setCurrentState(tmp.getChildren().get(0));
-						return bruteForceSolve(Legup.getCurrentState());
-					}
-				}
-				tmp.setCellContents(x, y, Nurikabe.CELL_UNKNOWN);
-			}
-		}
-
-		return tmp;
-	}
+	// private BoardState bruteForceSolve(BoardState origState) {
+	// 	Vector<PuzzleRule> rules = this.getRules();
+	//
+	// 	int unknownCount = 0;
+	//
+	// 	for (int y = 0; y < origState.getHeight(); y++) {
+	// 		for (int x = 0; x < origState.getWidth(); x++) {
+	// 			if (origState.getCellContents(x, y) == Nurikabe.CELL_UNKNOWN) {
+	// 				unknownCount++;
+	// 			}
+	// 		}
+	// 	}
+	// 	if (unknownCount == 0) return origState;
+	//
+	// 	BoardState tmp = origState.addTransitionFrom();
+	// 	assert(tmp.getParents().size() == 1);
+	// 	assert(tmp.getParents().get(0) == origState);
+	//
+	// 	for (int y = 0; y < tmp.getHeight(); y++) {
+	// 		for (int x = 0; x < tmp.getWidth(); x++) {
+	// 			// Skip any cells that are already filled in
+	// 			if (tmp.getCellContents(x, y) != Nurikabe.CELL_UNKNOWN) continue;
+	//
+	// 			// See if any rules work if the cell is black
+	// 			tmp.setCellContents(x, y, Nurikabe.CELL_BLACK);
+	// 			for (PuzzleRule r : rules) {
+	// 				if (r.checkRule(tmp) == null) {
+	// 					tmp.setJustification(r);
+	// 					tmp.endTransition();
+	// 					Legup.setCurrentState(tmp.getChildren().get(0));
+	// 					return bruteForceSolve(Legup.getCurrentState());
+	// 				}
+	// 			}
+	//
+	// 			// See if any rules work if the cell is White
+	// 			tmp.setCellContents(x, y, Nurikabe.CELL_WHITE);
+	// 			for (PuzzleRule r : rules) {
+	// 				if (r.checkRule(tmp) == null) {
+	// 					tmp.setJustification(r);
+	// 					tmp.endTransition();
+	// 					Legup.setCurrentState(tmp.getChildren().get(0));
+	// 					return bruteForceSolve(Legup.getCurrentState());
+	// 				}
+	// 			}
+	// 			tmp.setCellContents(x, y, Nurikabe.CELL_UNKNOWN);
+	// 		}
+	// 	}
+	//
+	// 	return tmp;
+	// }
 
 
 
