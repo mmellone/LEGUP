@@ -2,13 +2,14 @@ package edu.rpi.phil.legup.puzzles.nurikabe;
 
 import java.util.Vector;
 import java.util.List;
-import java.util.LinkedList;
+import java.util.Stack;
 import java.util.Set;
 import java.util.LinkedHashSet;
 import java.util.Random;
 import java.util.Comparator;
 import java.util.Collections;
 import java.util.Arrays;
+import java.util.Scanner;
 import java.awt.Point;
 
 import edu.rpi.phil.legup.BoardState;
@@ -37,7 +38,9 @@ public class NurikabeAI {
         }
       }
     }
-    if (unknownCount == 0 || contraIn(origState)) return origState;
+    if (unknownCount == 0) return origState;
+    // if (contraIn(origState)) return propagateBack(origState);
+    if (contraIn(origState)) return origState;
 
     BoardState tmp = origState.addTransitionFrom();
     assert(tmp.getParents().size() == 1);
@@ -157,7 +160,7 @@ public class NurikabeAI {
     return borderCellsArr[0];
   }
 
-  private static BoardState applyCaseRule(BoardState cur, Point p, LinkedList<BoardState> splitStates) {
+  private static BoardState applyCaseRule(BoardState cur, Point p, Stack<BoardState> splitStates) {
     BoardState tmp = null;
     for (int c = Nurikabe.CELL_BLACK; c <= Nurikabe.CELL_WHITE; c++){
       tmp = cur.addTransitionFrom();
@@ -166,7 +169,7 @@ public class NurikabeAI {
       tmp.endTransition();
     }
     Legup.setCurrentState(cur.getChildren().get(0).getChildren().get(0));
-    splitStates.add(cur.getChildren().get(1).getChildren().get(0));
+    splitStates.push(cur.getChildren().get(1).getChildren().get(0));
     return Legup.getCurrentState();
   }
 
@@ -180,22 +183,39 @@ public class NurikabeAI {
     return false;
   }
 
+  private static BoardState propagateBack(BoardState state) {
+    System.out.println("propBack");
+    while (state.getCaseRuleJustification() == null) {
+      state = state.getSingleParentState();
+      Legup.setCurrentState(state);
+      return propagateBack(state);
+    }
+    return state.getSingleParentState().getChildren().get(1).getChildren().get(0);
+  }
+
   public static void depthFirstSearch(BoardState state) {
-    LinkedList<BoardState> splitStates = new LinkedList<BoardState>();
+    Stack<BoardState> splitStates = new Stack<BoardState>();
     BoardState next = bruteForceSolve(state);
+    Scanner in = new Scanner(System.in);
     while (!isSolved(next)) {
+    // while (in.nextInt() == 1) {
       // if (contraIn(next)) {
       //   System.out.println("In Contra if");
       //   next = splitStates.remove();
       // }
       // next.getChildren().get(0).deleteState();
 
-
-
       next = applyCaseRule(next, bestCasesGuess(next), splitStates);
+      System.out.println("after applyCaseRule: " + splitStates.size());
       next = bruteForceSolve(next);
-      next = splitStates.remove();
-      next = bruteForceSolve(next);
+      if (contraIn(next)) {
+        while (contraIn(next)) {
+          next = splitStates.pop();
+          System.out.println("after pop: " + splitStates.size());
+          Legup.setCurrentState(next);
+        }
+        next = bruteForceSolve(next);
+      }
     }
   }
 
@@ -203,8 +223,8 @@ public class NurikabeAI {
     Legup.main(null);
     Legup thisLegup = Legup.getInstance();
     thisLegup.getGui().promptPuzzle();
-    System.out.println("nurikabeAI main");
     // bruteForceSolve(thisLegup.getCurrentState());
     depthFirstSearch(Legup.getCurrentState());
+    System.out.println("nurikabeAI main done");
   }
 }
