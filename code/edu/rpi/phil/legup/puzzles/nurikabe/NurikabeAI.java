@@ -1,8 +1,14 @@
 package edu.rpi.phil.legup.puzzles.nurikabe;
 
 import java.util.Vector;
+import java.util.List;
 import java.util.LinkedList;
+import java.util.Set;
+import java.util.LinkedHashSet;
 import java.util.Random;
+import java.util.Comparator;
+import java.util.Collections;
+import java.util.Arrays;
 import java.awt.Point;
 
 import edu.rpi.phil.legup.BoardState;
@@ -10,12 +16,14 @@ import edu.rpi.phil.legup.CaseRule;
 import edu.rpi.phil.legup.Contradiction;
 import edu.rpi.phil.legup.PuzzleRule;
 import edu.rpi.phil.legup.Legup;
+import edu.rpi.phil.legup.ConnectedRegions;
 
 
 public class NurikabeAI {
   static Nurikabe nur = new Nurikabe();
   static final Vector<PuzzleRule> rules = nur.getRules();
   static final Vector<Contradiction> contras = nur.getContradictions();
+
   /* solves the puzzle by simply trying looping through the board
      and applying as many basic rules as possible */
   private static BoardState bruteForceSolve(BoardState origState) {
@@ -79,7 +87,7 @@ public class NurikabeAI {
     return true;
   }
 
-  private static Point bestCasePosGuess(BoardState cur) {
+  private static Point randomPosition(BoardState cur) {
     Random rand = new Random();
     int x = rand.nextInt(cur.getWidth());
     int y = rand.nextInt(cur.getHeight());
@@ -88,6 +96,65 @@ public class NurikabeAI {
       y = rand.nextInt(cur.getHeight());
     }
     return new Point(x, y);
+  }
+
+  // Comparator used to order sets from most number of elements to least
+  // number of elements
+  private static class SetSizeComparator implements Comparator<Set<?>> {
+    @Override
+    public int compare(Set<?> o1, Set<?> o2) {
+      return Integer.valueOf(o2.size()).compareTo(o1.size());
+    }
+  }
+
+  private static Comparator<Point> createPointDistanceComparator(Point p)
+  {
+    final Point finalP = new Point(p.x, p.y);
+    return new Comparator<Point>()
+    {
+      @Override
+      public int compare(Point p0, Point p1)
+      {
+        double ds0 = p0.distanceSq(finalP);
+        double ds1 = p1.distanceSq(finalP);
+        return Double.compare(ds0, ds1);
+      }
+    };
+  }
+
+  private static LinkedHashSet<Point> getBorderCells(Set<Point> cells, int width, int height) {
+    LinkedHashSet<Point> border = new LinkedHashSet<Point>();
+    for (Point p : cells) {
+      for (int delta = -1; delta < 2; delta += 2) {
+        if (p.x+delta >=0 && p.x+delta < width) {
+          Point xChange = new Point(p.x+delta, p.y);
+          if (!cells.contains(xChange)) {
+            border.add(xChange);
+          }
+        }
+        if (p.y+delta >= 0 && p.y+delta < height) {
+          Point yChange = new Point(p.x, p.y+delta);
+          if (!cells.contains(yChange)) {
+            border.add(yChange);
+          }
+        }
+      }
+    }
+    return border;
+  }
+
+  private static Point bestCasesGuess(BoardState cur) {
+    // Get all connected regions in the board
+    List<Set<Point>> connectedRegions = ConnectedRegions.getConnectedRegions(Nurikabe.CELL_UNKNOWN, cur.getBoardCells(), cur.getWidth(), cur.getHeight());
+
+    //Sort the connected Regions by size
+    Collections.sort(connectedRegions, new SetSizeComparator());
+    Set<Point> borderCells = getBorderCells(connectedRegions.get(0), cur.getWidth(), cur.getHeight());
+    Point[] borderCellsArr = borderCells.toArray(new Point[0]);
+    Point center = new Point(cur.getWidth()/2, cur.getHeight()/2);
+    Arrays.sort(borderCellsArr, createPointDistanceComparator(center));
+    // System.out.println(borderCellsArr[0]);
+    return borderCellsArr[0];
   }
 
   private static BoardState applyCaseRule(BoardState cur, Point p, LinkedList<BoardState> splitStates) {
@@ -122,12 +189,11 @@ public class NurikabeAI {
       //   next = splitStates.remove();
       // }
       // next.getChildren().get(0).deleteState();
-      System.out.println("Before applyCaseRule");
-      next = applyCaseRule(next, new Point(1, 6), splitStates);
-      System.out.println("After applyCaseRule");
-      System.out.println("Before bruteForceSolve");
+
+
+
+      next = applyCaseRule(next, bestCasesGuess(next), splitStates);
       next = bruteForceSolve(next);
-      System.out.println("After bruteForceSolve");
       next = splitStates.remove();
       next = bruteForceSolve(next);
     }
