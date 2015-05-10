@@ -26,6 +26,18 @@
 		<java classname="edu.rpi.phil.legup.puzzles.nurikabe.NurikabeAI" fork="true" dir="run"/>
 	</target>
 
+	<target name="test-depthFirst" description="Compiles and runs the LEGUP main program and tests Nurikabe AI depth first search">
+		<javac debug="true" debuglevel="lines,vars,source" includeantruntime="false" srcdir="code" destdir="run"/>
+		<!-- <java classname="edu.rpi.phil.legup.Legup" fork="true" dir="run"/> -->
+		<java classname="edu.rpi.phil.legup.puzzles.nurikabe.breadthFirst" fork="true" dir="run"/>
+	</target>
+
+	<target name="test-breadthFirst" description="Compiles and runs the LEGUP main program and tests Nurikabe AI breadth first search">
+		<javac debug="true" debuglevel="lines,vars,source" includeantruntime="false" srcdir="code" destdir="run"/>
+		<!-- <java classname="edu.rpi.phil.legup.Legup" fork="true" dir="run"/> -->
+		<java classname="edu.rpi.phil.legup.puzzles.nurikabe.depthFirst" fork="true" dir="run"/>
+	</target>
+
 	<target name="test-editor" depends="compile,editor" description="Compiles and runs the LEGUP puzzle editor"/>
 
 	<target name="run" depends="legup" description="Synonym for 'legup'"/>

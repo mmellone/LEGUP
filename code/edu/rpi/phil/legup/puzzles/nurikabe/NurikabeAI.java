@@ -3,6 +3,7 @@ package edu.rpi.phil.legup.puzzles.nurikabe;
 import java.util.Vector;
 import java.util.List;
 import java.util.Stack;
+import java.util.LinkedList;
 import java.util.Set;
 import java.util.LinkedHashSet;
 import java.util.Random;
@@ -27,18 +28,18 @@ public class NurikabeAI {
 
   /* solves the puzzle by simply trying looping through the board
      and applying as many basic rules as possible */
-  private static BoardState bruteForceSolve(BoardState origState) {
+  private static BoardState bruteForceSolve(BoardState origState, int seedX, int seedY) {
 
     int unknownCount = 0;
 
-    for (int y = 0; y < origState.getHeight(); y++) {
-      for (int x = 0; x < origState.getWidth(); x++) {
-        if (origState.getCellContents(x, y) == Nurikabe.CELL_UNKNOWN) {
-          unknownCount++;
-        }
-      }
-    }
-    if (unknownCount == 0) return origState;
+    // for (int y = 0; y < origState.getHeight(); y++) {
+    //   for (int x = 0; x < origState.getWidth(); x++) {
+    //     if (origState.getCellContents(x, y) == Nurikabe.CELL_UNKNOWN) {
+    //       unknownCount++;
+    //     }
+    //   }
+    // }
+    // if (unknownCount == 0) return origState;
     // if (contraIn(origState)) return propagateBack(origState);
     if (contraIn(origState)) return origState;
 
@@ -46,8 +47,11 @@ public class NurikabeAI {
     assert(tmp.getParents().size() == 1);
     assert(tmp.getParents().get(0) == origState);
 
-    for (int y = 0; y < tmp.getHeight(); y++) {
-      for (int x = 0; x < tmp.getWidth(); x++) {
+    for (int dy = 0; dy < tmp.getHeight(); dy++) {
+      int y = (seedY + dy) % tmp.getHeight();
+      for (int dx = 0; dx < tmp.getWidth(); dx++) {
+        int x = (seedX + dx) % tmp.getWidth();
+
         // Skip any cells that are already filled in
         if (tmp.getCellContents(x, y) != Nurikabe.CELL_UNKNOWN) continue;
 
@@ -58,7 +62,7 @@ public class NurikabeAI {
             tmp.setJustification(r);
             tmp.endTransition();
             Legup.setCurrentState(tmp.getChildren().get(0));
-            return bruteForceSolve(Legup.getCurrentState());
+            return bruteForceSolve(Legup.getCurrentState(), x, y);
           }
         }
 
@@ -69,7 +73,7 @@ public class NurikabeAI {
             tmp.setJustification(r);
             tmp.endTransition();
             Legup.setCurrentState(tmp.getChildren().get(0));
-            return bruteForceSolve(Legup.getCurrentState());
+            return bruteForceSolve(Legup.getCurrentState(), x, y);
           }
         }
         tmp.setCellContents(x, y, Nurikabe.CELL_UNKNOWN);
@@ -183,10 +187,10 @@ public class NurikabeAI {
     Point[] borderCellsArr = borderCells.toArray(new Point[0]);
     Point center = new Point(cur.getWidth()/2, cur.getHeight()/2);
     Arrays.sort(borderCellsArr, numAround(cur));
-    System.out.println(borderCellsArr[0]);
     return borderCellsArr[0];
   }
 
+  // Applies Case Rule for depth first search (using a stack)
   private static BoardState applyCaseRule(BoardState cur, Point p, Stack<BoardState> splitStates) {
     BoardState tmp = null;
     for (int c = Nurikabe.CELL_BLACK; c <= Nurikabe.CELL_WHITE; c++){
@@ -197,6 +201,20 @@ public class NurikabeAI {
     }
     Legup.setCurrentState(cur.getChildren().get(0).getChildren().get(0));
     splitStates.push(cur.getChildren().get(1).getChildren().get(0));
+    return Legup.getCurrentState();
+  }
+
+  // Applies Case Rule for breadth first search (using a queue)
+  private static BoardState applyCaseRule(BoardState cur, Point p, LinkedList<BoardState> splitStates) {
+    BoardState tmp = null;
+    for (int c = Nurikabe.CELL_BLACK; c <= Nurikabe.CELL_WHITE; c++){
+      tmp = cur.addTransitionFrom();
+      tmp.setCaseSplitJustification(new CaseBlackOrWhite());
+      tmp.setCellContents(p.x, p.y, c);
+      tmp.endTransition();
+    }
+    Legup.setCurrentState(cur.getChildren().get(0).getChildren().get(0));
+    splitStates.add(cur.getChildren().get(1).getChildren().get(0));
     return Legup.getCurrentState();
   }
 
@@ -211,7 +229,6 @@ public class NurikabeAI {
   }
 
   private static BoardState propagateBack(BoardState state) {
-    System.out.println("propBack");
     while (state.getCaseRuleJustification() == null) {
       state = state.getSingleParentState();
       Legup.setCurrentState(state);
@@ -222,7 +239,7 @@ public class NurikabeAI {
 
   public static void depthFirstSearch(BoardState state) {
     Stack<BoardState> splitStates = new Stack<BoardState>();
-    BoardState next = bruteForceSolve(state);
+    BoardState next = bruteForceSolve(state, 0, 0);
     Scanner in = new Scanner(System.in);
     while (!isSolved(next)) {
     // while (in.nextInt() == 1) {
@@ -232,16 +249,40 @@ public class NurikabeAI {
       // }
       // next.getChildren().get(0).deleteState();
 
-      next = applyCaseRule(next, bestCasesGuess(next), splitStates);
-      System.out.println("after applyCaseRule: " + splitStates.size());
-      next = bruteForceSolve(next);
+      Point posGuess = bestCasesGuess(next);
+      next = applyCaseRule(next, posGuess, splitStates);
+      next = bruteForceSolve(next, posGuess.x, posGuess.y);
       if (contraIn(next)) {
-        while (contraIn(next)) {
+        do {
           next = splitStates.pop();
-          System.out.println("after pop: " + splitStates.size());
           Legup.setCurrentState(next);
-        }
-        next = bruteForceSolve(next);
+        } while (contraIn(next));
+        next = bruteForceSolve(next, posGuess.x, posGuess.y);
+      }
+    }
+  }
+
+  public static void breadthFirstSearch(BoardState state) {
+    LinkedList<BoardState> splitStates = new LinkedList<BoardState>();
+    BoardState next = bruteForceSolve(state, 0, 0);
+    Scanner in = new Scanner(System.in);
+    while (!isSolved(next)) {
+    // while (in.nextInt() == 1) {
+      // if (contraIn(next)) {
+      //   System.out.println("In Contra if");
+      //   next = splitStates.remove();
+      // }
+      // next.getChildren().get(0).deleteState();
+
+      Point posGuess = bestCasesGuess(next);
+      next = applyCaseRule(next, posGuess, splitStates);
+      next = bruteForceSolve(next, posGuess.x, posGuess.y);
+      if (contraIn(next)) {
+        do {
+          next = splitStates.remove();
+          Legup.setCurrentState(next);
+        } while (contraIn(next));
+        next = bruteForceSolve(next, posGuess.x, posGuess.y);
       }
     }
   }
@@ -251,7 +292,8 @@ public class NurikabeAI {
     Legup thisLegup = Legup.getInstance();
     thisLegup.getGui().promptPuzzle();
     // bruteForceSolve(thisLegup.getCurrentState());
-    depthFirstSearch(Legup.getCurrentState());
+    // depthFirstSearch(Legup.getCurrentState());
+    breadthFirstSearch(Legup.getCurrentState());
     System.out.println("nurikabeAI main done");
   }
 }
