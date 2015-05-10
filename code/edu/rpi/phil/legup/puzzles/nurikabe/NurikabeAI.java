@@ -125,6 +125,33 @@ public class NurikabeAI {
     };
   }
 
+  private static Comparator<Point> numAround(BoardState state) {
+    final BoardState finalState = state.copy();
+    return new Comparator<Point>() {
+      @Override
+      public int compare(Point p0, Point p1) {
+        int p0num = 0;
+        int p1num = 0;
+        for (int dx = -1; dx < 2; dx++) {
+          for (int dy = -1; dy < 2; dy++) {
+            if (dx == 0 && dy == 0) continue;
+            if ((p0.x+dx >= 0 && p0.x+dx < finalState.getWidth()) &&
+                (p0.y+dy >= 0 && p0.y+dy < finalState.getHeight()) &&
+                finalState.getCellContents(p0.x+dx, p0.y+dy) != Nurikabe.CELL_UNKNOWN) {
+              p0num++;
+            }
+            if ((p1.x+dx >= 0 && p1.x+dx < finalState.getWidth()) &&
+                (p1.y+dy >= 0 && p1.y+dy < finalState.getHeight()) &&
+                finalState.getCellContents(p1.x+dx, p1.y+dy) != Nurikabe.CELL_UNKNOWN) {
+              p1num++;
+            }
+          }
+        }
+        return Integer.compare(p1num, p0num);
+      }
+    };
+  }
+
   private static LinkedHashSet<Point> getBorderCells(Set<Point> cells, int width, int height) {
     LinkedHashSet<Point> border = new LinkedHashSet<Point>();
     for (Point p : cells) {
@@ -155,8 +182,8 @@ public class NurikabeAI {
     Set<Point> borderCells = getBorderCells(connectedRegions.get(0), cur.getWidth(), cur.getHeight());
     Point[] borderCellsArr = borderCells.toArray(new Point[0]);
     Point center = new Point(cur.getWidth()/2, cur.getHeight()/2);
-    Arrays.sort(borderCellsArr, createPointDistanceComparator(center));
-    // System.out.println(borderCellsArr[0]);
+    Arrays.sort(borderCellsArr, numAround(cur));
+    System.out.println(borderCellsArr[0]);
     return borderCellsArr[0];
   }
 
